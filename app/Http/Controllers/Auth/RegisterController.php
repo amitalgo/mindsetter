@@ -6,6 +6,7 @@ use App\Entities\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Doctrine\ORM\EntityManagerInterface;
 
 class RegisterController extends Controller
 {
@@ -34,8 +35,9 @@ class RegisterController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
+        $this->em = $em;
         $this->middleware('guest');
     }
 
@@ -49,7 +51,7 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+//            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
     }
@@ -62,7 +64,24 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        print_r($data);exit;
+//        print_r($data);exit;
+
+        $user = new User();
+        $user->setFirstName($data['name']);
+        $user->setLastName('hi');
+        $user->setContactNumber('8986669696');
+        $user->setProfilePic('h');
+        $user->setIsAdmin(1);
+        $user->setIsActive(1);
+        $user->setEmail($data['email']);
+        $user->setPassword($data['password']);
+        $user->setDeleted(0);
+        $user->setRememberToken($data['_token']);
+        $this->em->persist($user);
+        $this->em->flush();exit;
+
+
+//        print_r($data);exit;
 //        return User::create([
 //            'name' => $data['name'],
 //            'email' => $data['email'],
